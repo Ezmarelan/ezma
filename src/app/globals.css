@@ -1,0 +1,228 @@
+/*
+ * ═══════════════════════════════════════════════════════════
+ *  EZMA — 数字遗迹 / Digital Relic
+ *
+ *  品牌词是「锐利、守护、直率」，但视觉上不直译。
+ *  转译方式：
+ *    锐利 → 极端字重的切割边缘、1px 发丝线、硬边裁剪
+ *    守护 → 边框与框线的秩序感，像档案柜
+ *    直率 → 不修饰的排印，没有圆角、没有渐变柔光
+ *
+ *  材质上走「被扫描过的纸」：暖灰纸底 + 极细颗粒 + 扫描线。
+ *  色彩不是纯黑纯白，是纸质档案那种偏黄灰的中间调。
+ * ═══════════════════════════════════════════════════════════
+ */
+
+
+
+:root {
+  --paper: oklch(0.914 0.008 85);
+  --paper-deep: oklch(0.868 0.010 82);
+  --ink: oklch(0.185 0.012 70);
+  --ink-soft: oklch(0.36 0.014 72);
+  --ink-faint: oklch(0.52 0.012 74);
+  --rust: oklch(0.52 0.145 42);
+  --rule: oklch(0.185 0.012 70 / 0.16);
+
+  /* 动效三档。交互永远快，叙事可以慢，两者不混用。 */
+  --dur-ui: 160ms;
+  --dur-surface: 320ms;
+  --dur-story: 900ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --page-pad: clamp(20px, 4.2vw, 72px);
+  --page-max: 1560px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+
+  /*
+   * 自定义光标生效时隐藏系统光标。只在「有精确指针」的设备上做，
+   * 触屏设备根本没有光标这个概念。
+   */
+  @media (hover: hover) and (pointer: fine) {
+    &[data-cursor="on"] {
+      cursor: none;
+    }
+
+    &[data-cursor="on"] a,
+    &[data-cursor="on"] button {
+      cursor: none;
+    }
+  }
+}
+
+::selection {
+  background: var(--rust);
+  color: var(--paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 3px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.shell {
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-pad);
+}
+
+/*
+ * ═══ 全站颗粒层 ═══
+ *
+ * 一层固定的 SVG 噪点。用 feTurbulence 生成而不是图片：没有额外请求，
+ * 不会在 avatar 里被裁，而且改动一个数字就能换颗粒粗细。
+ *
+ * 关键在 opacity 必须极低（0.055）——它要像一张纸的纤维，不是像
+ * 贴了一层砂纸。太高会把文字糊掉，这正是很多「加噪点」做失败的地方。
+ *
+ * pointer-events: none 必须，否则整站不可点。
+ */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* 颗粒不要随滚动重复采样，固定住 —— 它是纸的一部分，不是内容。 */
+  background-repeat: repeat;
+  background-size: 240px 240px;
+}
+
+/* 扫描线：比颗粒更粗一层，只在 hero 区出现。 */
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    oklch(0.185 0.012 70 / 0.035) 2px,
+    oklch(0.185 0.012 70 / 0.035) 3px
+  );
+}
+
+/* ═══ 发丝线 ═══ */
+.hairline {
+  border-color: var(--rule);
+  border-style: solid;
+  border-width: 0;
+}
+
+/* ═══ 排印 ═══ */
+.t-display {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 13.5vw, 220px);
+  font-weight: 400;
+  line-height: 0.82;
+  letter-spacing: -0.045em;
+  /*
+   * 中文字距不能跟着西文走。-0.045em 在 220px 上是 -10px，
+   * 汉字的横折会直接咬在一起。—— 中文用更松的一档。
+   */
+}
+
+.t-display:lang(zh) {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: clamp(48px, 11vw, 176px);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+}
+
+.t-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4.4vw, 68px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.028em;
+}
+
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.t-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+/* ═══ 链接下划 ═══ */
+.link-u {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: color-mix(in oklab, currentColor 38%, transparent);
+  transition: text-decoration-color var(--dur-ui) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link-u:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* ═══ 减少动态 ═══ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .grain {
+    /* 颗粒是静态纹理，不属于动态，保留。 */
+    animation: none !important;
+  }
+}

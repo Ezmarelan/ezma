@@ -1,0 +1,414 @@
+/* ═══════════════════════════════════════════════
+   通用版式
+   ═══════════════════════════════════════════════ */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 10px 16px;
+  background: var(--ink);
+  color: var(--paper);
+}
+.skip-link:focus {
+  left: 8px;
+  top: 8px;
+}
+
+.section {
+  padding-block: clamp(64px, 11vh, 140px);
+  border-top: 1px solid var(--rule);
+}
+
+.section--deep {
+  background: var(--paper-deep);
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: clamp(28px, 4vw, 48px);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.section-eyebrow {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.section-count {
+  margin: 0;
+}
+
+/* ═══ 索引表：每一行是一张抽屉标签 ═══ */
+
+.index-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.index-row {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr) 5.5rem 7rem 1.6rem;
+  align-items: baseline;
+  gap: clamp(10px, 1.6vw, 28px);
+  padding-block: clamp(14px, 2vw, 22px);
+  border-bottom: 1px solid var(--rule);
+  /*
+   * 悬停时整行「被墨压过去」：背景由左向右扫入。
+   * 用 background-image 的渐变宽度变化实现，比改 background-color
+   * 更像「盖印」——它是有方向的。
+   */
+  background-image: linear-gradient(
+    to right,
+    color-mix(in oklab, var(--ink) 7%, transparent),
+    color-mix(in oklab, var(--ink) 7%, transparent)
+  );
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition:
+    background-size var(--dur-surface) var(--ease-out),
+    padding-inline var(--dur-ui) var(--ease-out);
+}
+
+.index-num {
+  color: var(--ink-faint);
+}
+
+.index-title {
+  font-size: clamp(19px, 2.3vw, 30px);
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.index-tag,
+.index-date {
+  white-space: nowrap;
+}
+
+.index-arrow {
+  font-size: 18px;
+  color: var(--ink-faint);
+  transition: transform var(--dur-ui) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .index-row:hover {
+    background-size: 100% 100%;
+    padding-inline: 0.6rem;
+  }
+
+  .index-row:hover .index-arrow {
+    transform: translate(3px, -3px);
+    color: var(--rust);
+  }
+}
+
+/* 触屏上把五行压成两行，别硬塞。 */
+@media (max-width: 767px) {
+  .index-row {
+    grid-template-columns: 2.6rem minmax(0, 1fr) 1.4rem;
+    grid-template-areas:
+      "num title arrow"
+      "num meta arrow";
+    row-gap: 4px;
+  }
+
+  .index-num {
+    grid-area: num;
+  }
+  .index-title {
+    grid-area: title;
+  }
+  .index-tag {
+    grid-area: meta;
+    font-size: 11px;
+  }
+  .index-date {
+    display: none;
+  }
+  .index-arrow {
+    grid-area: arrow;
+    align-self: center;
+  }
+}
+
+/* ═══ 自述 ═══ */
+
+.statement {
+  margin: 0;
+  max-width: 22ch;
+}
+
+.statement p {
+  margin: 0 0 28px;
+  font-family: var(--font-body);
+  font-size: clamp(28px, 5.2vw, 76px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.statement b {
+  font-weight: 800;
+  color: var(--rust);
+  /* 被强调的那几个字加一条手写感的下划，不是装饰，
+     是把「无法再删」这件事划出来。 */
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.14em;
+  text-decoration-color: color-mix(in oklab, var(--rust) 55%, transparent);
+}
+
+/* ═══ CTA ═══ */
+
+.cta-row {
+  display: grid;
+  gap: clamp(28px, 5vw, 56px);
+}
+
+.cta-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(16px, 3vw, 40px);
+}
+
+.big-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: clamp(34px, 6vw, 88px);
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  transition: color var(--dur-ui) var(--ease-out);
+}
+
+.big-link span {
+  font-size: 0.42em;
+  transition: transform var(--dur-surface) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .big-link:hover {
+    color: var(--rust);
+  }
+  .big-link:hover span {
+    transform: translateX(8px);
+  }
+}
+
+/* ═══ 文章页 ═══ */
+
+.article {
+  padding-block: clamp(48px, 8vh, 96px);
+}
+
+.article-head {
+  display: grid;
+  gap: 24px;
+  padding-bottom: clamp(28px, 4vw, 56px);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: clamp(32px, 5vw, 64px);
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  color: var(--ink-faint);
+}
+
+.article-title {
+  margin: 0;
+  font-size: clamp(34px, 7vw, 104px);
+  font-family: var(--font-body);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  max-width: 20ch;
+}
+
+.prose {
+  max-width: 34em;
+  font-size: clamp(16px, 1.15vw, 18px);
+  line-height: 1.78;
+  color: var(--ink);
+}
+
+.prose > * + * {
+  margin-top: 1.4em;
+}
+
+.prose h2 {
+  margin-top: 2.4em;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.6vw, 34px);
+  line-height: 1.24;
+  letter-spacing: -0.02em;
+}
+
+.prose blockquote {
+  margin: 2em 0;
+  padding-left: 22px;
+  border-left: 1px solid color-mix(in oklab, var(--ink) 32%, transparent);
+  color: var(--ink-soft);
+  font-size: 1.1em;
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1em 0.34em;
+  background: color-mix(in oklab, var(--ink) 7%, transparent);
+}
+
+/* 首字下沉：中文 3 行高，靠 float 绕排 */
+.prose > p:first-of-type::first-letter {
+  float: left;
+  margin: 0.05em 0.1em 0 0;
+  font-family: var(--font-body);
+  font-size: 3.1em;
+  font-weight: 800;
+  line-height: 0.86;
+  color: var(--rust);
+}
+
+/* ═══ 关于 / 实验 ═══ */
+
+.about-grid {
+  display: grid;
+  gap: clamp(32px, 6vw, 80px);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 900px) {
+  .about-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: start;
+  }
+}
+
+.about-lead {
+  margin: 0;
+  font-size: clamp(24px, 3.4vw, 46px);
+  font-family: var(--font-display);
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+}
+
+.fact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.fact-list li {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 16px;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+}
+
+.fact-key {
+  color: var(--ink-faint);
+}
+
+.work-grid {
+  display: grid;
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+@media (min-width: 760px) {
+  .work-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.work-card {
+  display: grid;
+  gap: 12px;
+  padding: clamp(20px, 3vw, 36px);
+  background: var(--paper);
+  min-height: 220px;
+  align-content: space-between;
+  transition: background-color var(--dur-ui) var(--ease-out);
+}
+
+.work-num {
+  color: var(--ink-faint);
+}
+
+.work-title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 40px);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.work-desc {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  margin: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .work-card:hover {
+    background: var(--paper-deep);
+  }
+}
+
+/* ═══ 页脚 ═══ */
+
+.foot {
+  border-top: 1px solid var(--rule);
+  padding-block: 28px;
+}
+
+.foot-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.foot p {
+  margin: 0;
+}
+
+/* ═══ 页面标题区（子页） ═══ */
+
+.page-head {
+  padding-block: clamp(48px, 9vh, 120px) clamp(28px, 4vw, 56px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.page-title {
+  margin: 0;
+  font-size: clamp(44px, 10vw, 148px);
+  font-family: var(--font-body);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.04em;
+}
+
+.page-desc {
+  margin: 20px 0 0;
+  max-width: 42ch;
+  color: var(--ink-soft);
+  font-size: clamp(15px, 1.3vw, 18px);
+}

@@ -1,0 +1,11 @@
+.article-next {
+  display: grid;
+  gap: 14px;
+  margin-top: clamp(48px, 8vh, 96px);
+  padding-top: clamp(24px, 4vw, 40px);
+  border-top: 1px solid var(--rule);
+}
+
+.article-next .t-mono {
+  color: var(--ink-faint);
+}

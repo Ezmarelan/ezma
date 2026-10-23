@@ -1,0 +1,88 @@
+/* ═══════════════════════════════════════════════
+   页面过渡：擦除 veil
+   ═══════════════════════════════════════════════ */
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 9400;
+  display: none;
+  background: var(--paper-deep);
+  /*
+   * 初始完全不可见。JS 在过渡开始前会把 display 设成 block，
+   * 再用 clipPath 控制露出多少。
+   */
+  clip-path: inset(100% 0% 0% 0%);
+  /* 过渡层本身不该被点中。 */
+  pointer-events: none;
+  /* 里面要有内容时才需要叠上下文。 */
+  isolation: isolate;
+}
+
+/*
+ * 扫描边缘：一条 rust 色横线，跟着擦除线上移。
+ * 定位在 veil 的底边，由 JS 用 yPercent 推动。
+ */
+.veil-edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--rust);
+  opacity: 0;
+}
+
+/*
+ * 遮罩铺满时的那张「档案卡」。
+ *
+ * 它刻意不做成 loading 动画：没有转圈、没有进度条。
+ * 一条竖排的细线 + 两行编号，读起来像在调一个抽屉。
+ */
+.veil-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.veil-mark {
+  color: color-mix(in oklab, var(--ink) 55%, transparent);
+  letter-spacing: 0.4em;
+  font-size: 12px;
+}
+
+.veil-sub {
+  color: color-mix(in oklab, var(--ink) 34%, transparent);
+  letter-spacing: 0.22em;
+  font-size: 10px;
+}
+
+.veil-rule {
+  display: block;
+  width: 1px;
+  height: 46px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--ink) 40%, transparent),
+    transparent
+  );
+}
+
+.veil-no {
+  color: color-mix(in oklab, var(--ink) 22%, transparent);
+  letter-spacing: 0.28em;
+  font-size: 9px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* 减少动态：过渡退化成 150ms 的淡入淡出（模板要求）。
+     用 CSS 实现，JS 那条 timeline 不会跑。 */
+  .veil {
+    transition: opacity 150ms linear;
+  }
+}

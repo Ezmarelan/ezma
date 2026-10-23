@@ -1,0 +1,192 @@
+/* ═══════════════════════════════════════════════
+   HERO — 第一个场景
+   ═══════════════════════════════════════════════ */
+
+[data-hero] {
+  position: relative;
+  /*
+   * 高度要扣掉 sticky 导航条（64px）——否则 hero 底边会落到视口下沿
+   * 之外，底部那行「向下滚动进入」被自己的 overflow: clip 切掉一半。
+   * 桌面用 100svh - 64px，移动端见下面的媒体查询。
+   */
+  height: calc(100svh - var(--nav-h, 64px));
+  min-height: 560px;
+  overflow: clip;
+  /* pin 用 transform，父级不能有 transform，否则会建立新的包含块。 */
+  isolation: isolate;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding-block: clamp(28px, 5vh, 64px);
+}
+
+.hero-kicker {
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+/*
+ * 三层叠字。
+ *
+ * 第 1 层是「正身」：最实、最大、语义上的 h1。
+ * 第 2、3 层是错印：只做 aria-hidden，颜色更淡，位移由 --dx/--dy 给。
+ *
+ * 关键：三层必须 **完全同字号、同字体、同行高**，只有位移不同，
+ * 才对得齐。任何一层字号差一点，错位就会变成「三行字」而不是
+ * 「同一行字印歪了」。
+ */
+.hero-stack {
+  position: relative;
+  display: grid;
+  place-items: start;
+  margin-block: auto;
+  /* 让三层叠在同一个格子里 */
+  > * {
+    grid-area: 1 / 1;
+  }
+}
+
+.hero-layer {
+  margin: 0;
+  white-space: nowrap;
+  /* 三层都不许有外边距差异，否则对不齐。 */
+  font-size: clamp(48px, 11vw, 176px);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  font-family: var(--font-body);
+  will-change: transform;
+}
+
+.hero-layer--1 {
+  color: var(--ink);
+}
+
+.hero-layer--2 {
+  color: color-mix(in oklab, var(--rust) 72%, transparent);
+  /* 错位：右上一点 */
+  transform: translate(0.012em, -0.018em);
+  /* 叠印层用 multiply，让它像油墨压在纸上而不是浮在上面 */
+  mix-blend-mode: multiply;
+}
+
+.hero-layer--3 {
+  color: color-mix(in oklab, var(--ink) 26%, transparent);
+  transform: translate(-0.02em, 0.026em);
+  mix-blend-mode: multiply;
+}
+
+.hero-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(24px, 6vw, 96px);
+  padding-bottom: clamp(8px, 2vh, 24px);
+}
+
+.hero-sub {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.hero-meta {
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/*
+ * 两条切线。初始高度 0，滚动到 76% 时 scaleY 到 1。
+ * origin 放在中线，让它们从中间往外长，而不是从上往下拉。
+ */
+.hero-slit {
+  position: absolute;
+  inset-inline: 0;
+  z-index: 3;
+  background: var(--ink);
+  transform: scaleY(0);
+  pointer-events: none;
+}
+
+.hero-slit--top {
+  top: 0;
+  height: 50%;
+  transform-origin: 50% 100%;
+}
+
+.hero-slit--bottom {
+  bottom: 0;
+  height: 50%;
+  transform-origin: 50% 0;
+}
+
+@media (max-width: 767px) {
+  /*
+   * 移动端 hero 的两个决定：
+   *
+   * 1. 不照抄桌面的 space-between。竖屏里那会把 kicker 推顶、字推中、
+   *    副文案推底，中间留下两大片空，像页面没加载完。
+   *
+   * 2. **高度不锁 100svh**。锁死之后内容一旦超过视口（这里就是：
+   *    标题 + 三行副文案 + 两行元信息 + 导航），底部会被 hero 自己的
+   *    overflow: clip 切掉——截图里「向下滚动进入」被裁了半个字。
+   *    改成 min-height，让它能自然长高。
+   */
+  [data-hero] {
+    height: auto;
+    min-height: calc(100svh - var(--nav-h, 64px));
+  }
+
+  .hero-inner {
+    justify-content: flex-start;
+    gap: clamp(20px, 5vh, 40px);
+    padding-block: clamp(20px, 4vh, 36px) clamp(28px, 6vh, 48px);
+    height: auto;
+    min-height: calc(100svh - var(--nav-h, 64px));
+  }
+
+  .hero-stack {
+    margin-block: 0;
+  }
+
+  .hero-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: auto;
+  }
+
+  .hero-meta {
+    text-align: left;
+  }
+
+  .hero-layer {
+    /* 竖屏下字号再小一档，四字标题才不会顶满整行。 */
+    font-size: clamp(44px, 15vw, 88px);
+  }
+
+  /* 减少动态时 hero 不 pin，高度必须是内容高度而不是视口高度。 */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* 减少动态：hero 不 pin，不散开，三层的错位也必须收掉——
+     静态时错位叠字是艺术处理，但配合 reduce 的用户预期，
+     保留一层就够，别让三层糊在一起。 */
+  .hero-layer--2,
+  .hero-layer--3 {
+    display: none;
+  }
+
+  .hero-slit {
+    display: none;
+  }
+}

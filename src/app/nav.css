@@ -1,0 +1,242 @@
+/* ═══════════════════════════════════════════════
+   导航
+   ═══════════════════════════════════════════════ */
+
+:root {
+  /* 导航条高度。hero 用它算自己的可用高度，避免底边被裁。 */
+  --nav-h: 64px;
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 8000;
+  /* 半透明纸底 + 背景模糊：滚过内容时字还在下面隐约可见，
+     这是「纸压着纸」的层叠感，不是玻璃拟态（那种偏冷、偏科技）。 */
+  background: color-mix(in oklab, var(--paper) 88%, transparent);
+  backdrop-filter: blur(6px) saturate(1.1);
+  border-bottom: 1px solid var(--rule);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--nav-h);
+  gap: 24px;
+}
+
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.nav-brand-mark {
+  font-size: 18px;
+  line-height: 1;
+  /* 这个方块符号是「档案柜」的隐喻：一个被划掉一角的格。 */
+  color: var(--rust);
+}
+
+.nav-brand-text {
+  letter-spacing: 0.28em;
+  font-weight: 600;
+}
+
+/* ─── 桌面导航 ─── */
+.nav-desktop {
+  display: block;
+}
+
+.nav-list {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 3px;
+  list-style: none;
+}
+
+/*
+ * 墨块。它是唯一的位置指示器。
+ * 用 transform 位移 + width/height 一起改——这里改 width 是允许的，
+ * 因为它在 pointerenter 时才发生，不是每帧。真正每帧跑的只有
+ * transform，那条路径上是合成层。
+ */
+.nav-blob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  opacity: 0;
+  background: var(--ink);
+  border-radius: 1px;
+  pointer-events: none;
+  transition:
+    transform var(--dur-surface) var(--ease-out),
+    width var(--dur-surface) var(--ease-out),
+    height var(--dur-surface) var(--ease-out),
+    opacity var(--dur-ui) var(--ease-out);
+}
+
+.nav-item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 8px 14px;
+  /*
+   * 这里踩过一个坑：一开始用 mix-blend-mode: difference 让文字在墨块
+   * 经过时自动反白。想法是对的，但 difference 是**相对于它下面所有
+   * 东西**求差——导航条本身是半透明的纸色、下面还有 backdrop-filter，
+   * 叠出来的结果是把字算成了接近背景的灰，整排导航几乎看不见（截图里
+   * 就是一片若隐若现的灰字）。
+   *
+   * 换成显式写反白：墨块滑到哪一项，就给哪一项加 .is-blob 类改字色。
+   * 多一个类，但结果是确定的，不受底下有什么影响。
+   */
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.2;
+  border-radius: 1px;
+}
+
+.nav-index {
+  font-size: 9px;
+  opacity: 0.55;
+}
+
+.nav-label {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/*
+ * 键盘与墨块是两套表达：墨块只有鼠标看得到，所以键盘用户需要
+ * 一条硬边轮廓。这里不隐藏焦点，也不自定义成「像素级一致」——
+ * 可辨识比美观重要。
+ */
+/* 墨块盖住的那一项：字反白。由 Nav.tsx 在 pointerenter 时打类。 */
+.nav-item.is-blob {
+  color: var(--paper);
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 2px;
+}
+
+/* 触屏：没有 hover，用左侧一个小竖条标当前项。 */
+@media (hover: none), (pointer: coarse) {
+  .nav-blob {
+    display: none;
+  }
+
+  .nav-item[data-active="true"] {
+    box-shadow: inset 2px 0 0 var(--rust);
+  }
+}
+
+/* ─── 移动端 ─── */
+.nav-burger {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  /* 触控目标 ≥ 44px */
+  min-height: 44px;
+  padding-inline: 4px;
+}
+
+.nav-burger-lines {
+  position: relative;
+  display: block;
+  width: 20px;
+  height: 10px;
+}
+
+.nav-burger-lines i {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--ink);
+  transition: transform var(--dur-surface) var(--ease-out);
+}
+
+.nav-burger-lines i:first-child {
+  top: 0;
+}
+.nav-burger-lines i:last-child {
+  bottom: 0;
+}
+
+.nav-burger-lines[data-open="true"] i:first-child {
+  transform: translateY(4.5px) rotate(45deg);
+}
+.nav-burger-lines[data-open="true"] i:last-child {
+  transform: translateY(-4.5px) rotate(-45deg);
+}
+
+.nav-mobile {
+  display: none;
+  position: fixed;
+  inset: 64px 0 0 0;
+  z-index: 7999;
+  background: var(--paper);
+  padding: var(--page-pad);
+  /* 用 clip-path 从上往下展开，比位移更「贴住」导航条。 */
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--dur-surface) var(--ease-drawer);
+}
+
+.nav-mobile[data-open="true"] {
+  clip-path: inset(0 0 0 0);
+}
+
+.nav-mobile ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.nav-mobile-item {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding-block: 18px;
+  border-bottom: 1px solid var(--rule);
+  font-size: clamp(28px, 8vw, 44px);
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  /* 触控目标远大于 44px */
+  min-height: 44px;
+}
+
+@media (max-width: 767px) {
+  .nav-desktop {
+    display: none;
+  }
+
+  .nav-burger {
+    display: inline-flex;
+  }
+
+  .nav-mobile {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-blob,
+  .nav-mobile,
+  .nav-burger-lines i {
+    transition-duration: 0.01ms;
+  }
+}

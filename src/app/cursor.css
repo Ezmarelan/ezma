@@ -1,0 +1,116 @@
+/* ═══════════════════════════════════════════════
+   自定义光标
+   ═══════════════════════════════════════════════ */
+
+.cursor-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  pointer-events: none;
+  /* 系统光标关掉之后，光标层必须能盖住颗粒层。 */
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--ink);
+  border-radius: 50%;
+  transition:
+    width var(--dur-ui) var(--ease-out),
+    height var(--dur-ui) var(--ease-out),
+    background-color var(--dur-ui) var(--ease-out);
+}
+
+.cursor-dot[data-pressed="true"] {
+  width: 10px;
+  height: 10px;
+}
+
+.cursor-ring {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid color-mix(in oklab, var(--ink) 55%, transparent);
+  border-radius: 50%;
+  /*
+   * 形状变化用 CSS，位置用 JS 写的 transform。
+   * 这两件事必须分开：如果位置也交给 transition，光标会用固定时长
+   * 去追指针，快速移动时明显「追不上然后弹过去」。
+   */
+  transition:
+    width var(--dur-surface) var(--ease-out),
+    height var(--dur-surface) var(--ease-out),
+    border-radius var(--dur-surface) var(--ease-out),
+    background-color var(--dur-surface) var(--ease-out),
+    border-color var(--dur-surface) var(--ease-out);
+}
+
+.cursor-ring[data-state="hover"] {
+  width: 58px;
+  height: 58px;
+  border-color: color-mix(in oklab, var(--ink) 34%, transparent);
+}
+
+.cursor-ring[data-state="view"] {
+  width: 68px;
+  height: 68px;
+  background: var(--rust);
+  border-color: transparent;
+}
+
+.cursor-ring[data-state="drag"] {
+  width: 58px;
+  height: 58px;
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+}
+
+.cursor-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--paper);
+  text-transform: none;
+  opacity: 0;
+  transition: opacity var(--dur-ui) var(--ease-out);
+}
+
+.cursor-ring[data-state="view"] .cursor-label {
+  opacity: 1;
+}
+
+/* 光标只有在真正移动过之后才现身，否则一进页面就有一个点停在中间。 */
+body[data-cursor="on"] .cursor-root {
+  opacity: 0;
+}
+
+body[data-cursor-visible="on"] .cursor-root {
+  opacity: 1;
+}
+
+.cursor-root {
+  transition: opacity var(--dur-ui) var(--ease-out);
+}
+
+/* 触屏 / 无精确指针：整层不渲染效果。 */
+@media not all and (hover: hover) and (pointer: fine) {
+  .cursor-root {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-root {
+    display: none;
+  }
+}
