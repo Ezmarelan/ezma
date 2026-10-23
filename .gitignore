@@ -19,6 +19,13 @@ shots/
 .env
 .env*.local
 
+# IDEA（只忽略个人工作区，保留 run configurations 供他人复用）
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/shelf/
+.idea/httpRequests/
+
 # misc
 .DS_Store
 Thumbs.db

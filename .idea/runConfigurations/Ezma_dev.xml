@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectRunConfigurationManager">
+    <!--
+      Ezma / dev
+
+      用 Node.js 配置而不是 npm 配置，因为这台机器的 Node 发行版
+      里没有 npm（只有 node.exe），pnpm 也是一个 .mjs 脚本。
+      IDEA 的 npm 面板找不到 npm-cli.js 会直接报错。
+
+      改成让 Node 直接执行 next 的入口脚本，等价于 pnpm dev。
+    -->
+    <configuration name="Ezma / dev" type="NodeJSConfigurationType" path-to-js-file="$PROJECT_DIR$/node_modules/next/dist/bin/next" working-dir="$PROJECT_DIR$" application-parameters="dev -p 3100">
+      <EXTENSION ID="com.intellij.javascript.nodejs.debug.NodeDebugRunConfigurationExtension">
+        <option name="extraNodeOptions" value="--enable-source-maps" />
+      </EXTENSION>
+      <method v="2" />
+    </configuration>
+  </component>
+</project>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectRunConfigurationManager">
+    <!--
+      生产模式预览。必须先跑 Ezma / build。
+      公网演示（cpolar 之类）一定要用这个，不要用 dev：
+      dev 的 HMR WebSocket 在隧道下会 503，导致客户端 JS 初始化失败，
+      光标和滚动动画全部不生效。
+    -->
+    <configuration name="Ezma / start" type="NodeJSConfigurationType" path-to-js-file="$PROJECT_DIR$/node_modules/next/dist/bin/next" working-dir="$PROJECT_DIR$" application-parameters="start -p 3100">
+      <method v="2" />
+    </configuration>
+  </component>
+</project>
